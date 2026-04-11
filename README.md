@@ -1,8 +1,25 @@
 # droptop v2
 
-A bookmark manager built as a learning project to solidify full stack development skills. This is the second version of Droptop - the first was built with Vite + Express + MongoDB. This rebuild uses a completely different stack to deepen understanding of each layer.
+A bookmark manager rebuilt to go deeper on the full stack fundamentals I had previously learned through abstraction. This is part of an ongoing series of projects I've been building to get from frontend-comfortable to genuinely full stack.
 
-> Work in progress. Built in public as part of my journey from frontend to full stack.
+> Work in progress. Built in public as part of my journey to mid-level.
+
+---
+
+## Context
+
+This isn't my first full stack project. I've previously built:
+
+- **Remit** - a full stack invoice app built with Next.js and Supabase
+- **Decisiv** - an AI-powered task manager, also built with Next.js and Supabase
+
+Both of those used Supabase which handles auth, database and API concerns behind the scenes. I knew it was abstracting a lot from me, so I took a deliberate step back to learn the underlying pieces properly.
+
+That led to an Express learning series where I built several APIs from scratch in Node.js - including a full auth API with JWT and bcrypt, MongoDB with Mongoose, and a first version of Droptop using Vite + Express as a split frontend/backend architecture.
+
+**This version** rebuilds Droptop again, this time back in Next.js but with PostgreSQL and Prisma instead of Supabase - so I'm working closer to the metal than before while still in a familiar framework.
+
+The whole Droptop saga was built in under a day. I work closely with Claude as a learning tool - not to generate code for me, but as a senior engineer I can ask questions to, get unblocked by, and have review my attempts. Every piece of code here I wrote or attempted myself first.
 
 ---
 
@@ -32,28 +49,28 @@ A bookmark manager built as a learning project to solidify full stack developmen
 
 ## What I learned building this
 
-**PostgreSQL and relational databases**
-Coming from MongoDB, this was my first real project with a relational database. Understanding tables, columns, migrations and how relations work between models was a big shift from the document-based thinking I was used to.
+**Raw PostgreSQL vs Supabase**
+I'd used PostgreSQL before via Supabase but never touched it directly. Setting it up locally, connecting via a connection string, and managing it through Prisma Studio and pgAdmin gave me a much clearer picture of what Supabase was doing under the hood the whole time.
 
 **Prisma 7**
-Prisma 7 has significant breaking changes from earlier versions - the database URL moved out of `schema.prisma` into a `prisma.config.ts` file, the client now requires a driver adapter (`@prisma/adapter-pg`), and the generated client import path changed. Most tutorials online are written for Prisma 6 so I had to work through the official docs and GitHub issues to get it right.
+Prisma 7 has significant breaking changes from earlier versions - the database URL moved out of `schema.prisma` into a `prisma.config.ts` file, the client now requires a driver adapter (`@prisma/adapter-pg`), and the generated client import path changed. Most tutorials online are written for Prisma 6 so I had to work through the official docs and GitHub issues to get the setup right.
 
 **Next.js API Routes vs Express**
-In my first version I had a separate Express backend and a Vite frontend as two different repos. This time everything lives in one Next.js project. API routes follow the same request/response mental model as Express but with a different syntax - you export named functions (`GET`, `POST`, `DELETE`) that match HTTP methods, and return `Response` objects instead of calling `res.send()`.
+After spending time building Express APIs I now have a clear mental model of the request/response cycle. Coming back to Next.js API routes with that foundation made them much easier to understand - they follow the same pattern, just different syntax. You export named functions (`GET`, `POST`, `DELETE`) that match HTTP methods, and return `Response` objects instead of calling `res.send()`.
 
 **Open Graph scraping**
 Used `open-graph-scraper` to fetch page metadata when a user pastes a URL. The form auto-populates title, description and image on `onBlur` of the URL input - the same mechanic Pinterest uses when you save a pin.
 
-**JWT auth without a library**
-Signed and verified JWT tokens manually with `jsonwebtoken` and `bcryptjs`. Auth middleware in Next.js API routes is just a helper function you call at the top of each protected route, rather than Express-style middleware chaining.
+**Rolling JWT auth by hand**
+Having done this in Express first, doing it again in Next.js was about reinforcing the mental model - not learning something new. That was intentional. I wanted the auth pattern to feel automatic before moving on.
 
 ---
 
 ## Challenges
 
-- **Prisma 7 setup** - almost no community resources existed for this version at the time of building. Had to read source code, GitHub issues and official docs to piece together the correct configuration.
-- **Postgres locally** - setting up PostgreSQL locally on Mac required manually adding the binary path to `.zshrc` since the installer doesn't do it automatically.
-- **Type mismatches** - JWT stores `userId` as a number but TypeScript needed explicit casting at multiple points. Small thing but a good lesson in tracing types through a system.
+- **Prisma 7 setup** - almost no community resources existed for this version at the time of building. Had to work through official docs, GitHub issues and source code to piece together the correct configuration.
+- **Postgres locally on Mac** - the installer doesn't add the binary to PATH automatically. Had to manually add `/Library/PostgreSQL/18/bin` to `.zshrc`.
+- **Type mismatches** - JWT stores `userId` as a number but TypeScript needed explicit casting at multiple points. Small detail but a good lesson in tracing types through a system end to end.
 
 ---
 
@@ -90,8 +107,6 @@ droptop-v2/
 
 ## Roadmap
 
-This is a living project. Planned additions:
-
 - [ ] Email verification on register
 - [ ] Collections and folders
 - [ ] Public vs private bookmarks
@@ -103,14 +118,13 @@ This is a living project. Planned additions:
 
 ---
 
-## Version 1
+## The Droptop saga
 
-The first version of Droptop was built with a split architecture:
-
-- Backend: Express + MongoDB + Mongoose + JWT
-- Frontend: Vite + React + TypeScript
+**v1** - Built with Express + MongoDB + Mongoose on the backend, Vite + React on the frontend. Two separate repos, CORS config, JWT auth from scratch, full bookmark CRUD with tag filtering.
 
 Repo: [droptop-v1](https://github.com/morganthen/droptop) _(link when published)_
+
+**v2** - This repo. Same app, different stack. Next.js + PostgreSQL + Prisma. One repo, API routes instead of Express, Prisma instead of Mongoose.
 
 ---
 
