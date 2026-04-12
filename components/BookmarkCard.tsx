@@ -55,7 +55,7 @@ const NoSignal = ({
         strokeLinejoin="round"
       />
     </svg>
-    <span className="mt-2 font-share text-xs tracking-widest text-phosphor\/25 uppercase">
+    <span className="mt-2 font-share text-xs tracking-widest text-phosphor/25 uppercase">
       NO SIGNAL
     </span>
     {!isEditing && (
@@ -83,6 +83,12 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
 
   const scanDelay = useRef(`-${Math.random() * 4}s`);
   const scanDuration = useRef(`${3 + Math.random() * 3}s`);
+
+  const glitchDelay = useRef(`${Math.random() * 5}s`);
+  const glitchDuration = useRef(`${6 + Math.random() * 6}s`);
+
+  const glitchDescDelay = useRef(`${Math.random() * 8}s`);
+  const glitchDescDuration = useRef(`${10 + Math.random() * 8}s`);
 
   function handleDeleteEditTag(index: number) {
     setEditData((prev) => ({
@@ -277,12 +283,24 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
           </>
         ) : (
           <>
-            <h2 className="text-phosphor font-share text-sm leading-snug line-clamp-2 tracking-wide">
+            <h2
+              className="text-phosphor font-share text-sm leading-snug line-clamp-2 tracking-wide glitch-title"
+              style={{
+                animationDelay: glitchDelay.current,
+                animationDuration: glitchDuration.current,
+              }}
+            >
               {bookmark.title || bookmark.url}
             </h2>
 
             {bookmark.description && (
-              <p className="text-phosphor/50 font-share text-xs leading-relaxed line-clamp-3">
+              <p
+                className="text-phosphor/50 font-share text-xs leading-relaxed line-clamp-3 glitch-desc"
+                style={{
+                  animationDelay: glitchDescDelay.current,
+                  animationDuration: glitchDescDuration.current,
+                }}
+              >
                 {bookmark.description}
               </p>
             )}

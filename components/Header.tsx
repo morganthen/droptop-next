@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import AddBookmarkForm from "./AddBookmarkForm";
+import Logo from "./Logo";
 
 type HeaderProps = {
   onLogOut: () => void;
@@ -56,9 +57,7 @@ export default function Header({
       />
 
       <div className="px-6 py-3 flex items-center justify-between relative z-10">
-        <h1 className="text-4xl text-phosphor font-display tracking-widest">
-          DROP<span className="text-signal">TOP</span>
-        </h1>
+        <Logo />
 
         <span className="text-phosphor/50 font-share text-xs tracking-widest hidden md:block">
           {filteredCount ?? bookmarkCount} / {bookmarkCount} RECORDS LOADED

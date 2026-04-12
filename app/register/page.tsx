@@ -1,5 +1,6 @@
 "use client";
 
+import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -53,16 +54,14 @@ export default function Register() {
 
       <div className="w-full max-w-sm z-20">
         <div className="text-center mb-10">
-          <h1 className="text-7xl text-phosphor font-display tracking-widest">
-            DROP<span className="text-signal">TOP</span>
-          </h1>
+          <Logo />
           <p className="text-phosphor/50 font-share text-xs tracking-widest uppercase mt-2">
             BOOKMARK TERMINAL v2.0
           </p>
         </div>
 
         <div className="bg-screen border border-phosphor/30 p-8 space-y-5">
-          <p className="text-phosphor/50 font-share text-md tracking-widest uppercase">
+          <p className="text-phosphor/50 font-share text-md tracking-widest uppercase glitch">
             &gt; CREATE NEW USER ACCOUNT_
           </p>
 
