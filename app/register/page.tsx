@@ -32,13 +32,24 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-terminal flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Static scanlines */}
       <div
         className="pointer-events-none fixed inset-0 z-10"
         style={{
           background:
-            "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px)",
+            "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.12) 3px, rgba(0,0,0,0.12) 4px)",
         }}
       />
+      {/* Moving sweep */}
+      <div
+        className="scanline-sweep pointer-events-none fixed left-0 right-0 h-32 z-10"
+        style={{
+          background:
+            "linear-gradient(to bottom, transparent 0%, rgba(200,255,0,0.015) 50%, transparent 100%)",
+        }}
+      />
+      {/* Noise */}
+      <div className="bg-noise pointer-events-none fixed inset-0 z-10 opacity-40" />
 
       <div className="w-full max-w-sm z-20">
         <div className="text-center mb-10">
@@ -51,7 +62,7 @@ export default function Register() {
         </div>
 
         <div className="bg-screen border border-phosphor/30 p-8 space-y-5">
-          <p className="text-phosphor/50 font-share text-xs tracking-widest uppercase">
+          <p className="text-phosphor/50 font-share text-md tracking-widest uppercase">
             &gt; CREATE NEW USER ACCOUNT_
           </p>
 
