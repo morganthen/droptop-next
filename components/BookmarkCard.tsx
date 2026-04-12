@@ -9,6 +9,7 @@ type Props = {
   bookmark: Bookmark;
   onDelete: (id: number) => void;
   onAdd: () => void;
+  onTagClick: (tag: string) => void;
 };
 
 const editInputClass =
@@ -69,7 +70,12 @@ const NoSignal = ({
   </div>
 );
 
-export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
+export default function BookmarkCard({
+  bookmark,
+  onDelete,
+  onAdd,
+  onTagClick,
+}: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [editData, setEditData] = useState({
@@ -157,47 +163,49 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
     >
       {/* Image area */}
       {hasValidImage ? (
-        <div className="relative overflow-hidden h-32">
-          <Image
-            src={bookmark.imageUrl!}
-            alt={bookmark.title ?? ""}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            onError={() => setImgError(true)}
-            style={{
-              filter: "saturate(0.8) brightness(0.95) contrast(1.1)",
-              opacity: 0.8,
-            }}
-          />
-          {/* Gradient fade */}
-          <div className="absolute inset-0 bg-linear-to-t from-screen to-transparent" />
-          {/* Static scanlines */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px)",
-            }}
-          />
-          {/* Moving scanline sweep */}
-          <div
-            className="scanline-sweep absolute left-0 right-0 h-8 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%)",
-              animationDelay: scanDelay.current,
-              animationDuration: scanDuration.current,
-            }}
-          />
-          {!isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="absolute top-2 right-2 bg-phosphor text-terminal font-share text-xs px-2 py-0.5 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all"
-            >
-              EDIT
-            </button>
-          )}
-        </div>
+        <a href={bookmark.url} target="_blank" rel="noopener noreferrer">
+          <div className="relative overflow-hidden h-32">
+            <Image
+              src={bookmark.imageUrl!}
+              alt={bookmark.title ?? ""}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              onError={() => setImgError(true)}
+              style={{
+                filter: "saturate(0.8) brightness(0.95) contrast(1.1)",
+                opacity: 0.8,
+              }}
+            />
+            {/* Gradient fade */}
+            <div className="absolute inset-0 bg-linear-to-t from-screen to-transparent" />
+            {/* Static scanlines */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px)",
+              }}
+            />
+            {/* Moving scanline sweep */}
+            <div
+              className="scanline-sweep absolute left-0 right-0 h-8 pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%)",
+                animationDelay: scanDelay.current,
+                animationDuration: scanDuration.current,
+              }}
+            />
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="absolute top-2 right-2 bg-phosphor text-terminal font-share text-xs px-2 py-0.5 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all"
+              >
+                EDIT
+              </button>
+            )}
+          </div>
+        </a>
       ) : (
         <NoSignal onEdit={() => setIsEditing(true)} isEditing={isEditing} />
       )}
@@ -308,12 +316,13 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
             {bookmark.tags && bookmark.tags.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {bookmark.tags.map((tag) => (
-                  <span
+                  <button
+                    onClick={() => onTagClick(tag)}
                     key={tag}
                     className="border border-phosphor/25 text-phosphor/50 font-share text-xs px-2 py-0.5"
                   >
                     {tag}
-                  </span>
+                  </button>
                 ))}
               </div>
             )}

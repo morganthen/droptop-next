@@ -12,10 +12,13 @@ export default function Bookmarks() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const router = useRouter();
 
+  {
+    /** Debounce search term - increase responsiveness because searching client side*/
+  }
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-    }, 300);
+    }, 10);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
@@ -144,6 +147,7 @@ export default function Bookmarks() {
                     bookmark={bookmark}
                     onDelete={handleDeleteBookmark}
                     onAdd={fetchBookmarks}
+                    onTagClick={setSearchTerm}
                   />
                 </div>
               ))}
