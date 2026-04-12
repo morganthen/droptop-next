@@ -198,7 +198,11 @@ export default function BookmarkCard({
             />
             {!isEditing && (
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsEditing(true);
+                }}
                 className="absolute top-2 right-2 bg-phosphor text-terminal font-share text-xs px-2 py-0.5 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all"
               >
                 EDIT
