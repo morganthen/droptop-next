@@ -3,6 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const inputClass =
+  "w-full bg-transparent border border-phosphor/25 text-phosphor placeholder-phosphor/30 font-share text-sm px-3 py-2 focus:outline-none focus:border-phosphor/60 transition-colors";
+
+const labelClass =
+  "block text-phosphor/50 font-share text-xs tracking-widest uppercase mb-1";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +23,7 @@ export default function Login() {
       body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
-      setError("Login failed. Please check your credentials.");
+      setError("ACCESS DENIED. CHECK CREDENTIALS.");
     } else {
       localStorage.setItem("token", (await response.json()).token);
       router.push("/bookmarks");
@@ -25,64 +31,80 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-black text-white tracking-tight font-mono">
-            drop<span className="text-[#ff4d00]">top</span>
+    <div className="min-h-screen bg-terminal flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Scanlines */}
+      <div
+        className="pointer-events-none fixed inset-0 z-10"
+        style={{
+          background:
+            "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px)",
+        }}
+      />
+
+      <div className="w-full max-w-sm z-20">
+        <div className="text-center mb-10">
+          <h1 className="text-7xl text-phosphor font-display tracking-widest">
+            DROP<span className="text-signal">TOP</span>
           </h1>
-          <p className="text-zinc-500 text-sm mt-2 tracking-widest uppercase">
-            your bookmarks, organised
+          <p className="text-phosphor/50 font-share text-xs tracking-widest uppercase mt-2">
+            BOOKMARK TERMINAL v2.0
           </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-[#161616] border border-zinc-800 rounded-2xl p-8 space-y-5"
-        >
-          <div className="space-y-1">
-            <label className="text-zinc-400 text-xs tracking-widest uppercase font-mono">
-              Email
-            </label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors"
-            />
-          </div>
+        <div className="bg-screen border border-phosphor/30 p-8 space-y-5">
+          <p className="text-phosphor/50 font-share text-xs tracking-widest uppercase">
+            &gt; AUTHENTICATE TO CONTINUE_
+          </p>
 
-          <div className="space-y-1">
-            <label className="text-zinc-400 text-xs tracking-widest uppercase font-mono">
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className={labelClass}>USER.EMAIL</label>
+              <input
+                type="email"
+                placeholder="user@terminal.io"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+              />
+            </div>
 
-          {error && <p className="text-[#ff4d00] text-xs font-mono">{error}</p>}
+            <div>
+              <label className={labelClass}>USER.PASS</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={inputClass}
+              />
+            </div>
 
-          <button
-            type="submit"
-            className="w-full bg-[#ff4d00] hover:bg-[#e04400] text-white font-bold py-3 rounded-lg text-sm tracking-widest uppercase transition-colors font-mono"
-          >
-            Sign In
-          </button>
+            {error && (
+              <p className="text-signal font-share text-xs tracking-widest uppercase">
+                ! {error}
+              </p>
+            )}
 
-          <button
-            type="button"
-            onClick={() => router.push("/register")}
-            className="w-full text-zinc-500 hover:text-white text-xs tracking-widest uppercase transition-colors font-mono py-1"
-          >
-            No account? Register
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="w-full bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase py-3 hover:bg-phosphor/90 transition-colors"
+            >
+              AUTHENTICATE →
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/register")}
+              className="w-full border border-phosphor/25 text-phosphor/50 font-share text-xs tracking-widest uppercase py-2 hover:border-phosphor/50 hover:text-phosphor/60 transition-colors bg-transparent"
+            >
+              NEW USER? REGISTER
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-phosphor/25 font-share text-xs tracking-widest mt-4">
+          SYS OK · DROPTOP TERMINAL
+        </p>
       </div>
     </div>
   );

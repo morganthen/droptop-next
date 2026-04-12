@@ -3,6 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const inputClass =
+  "w-full bg-transparent border border-phosphor/25 text-phosphor placeholder-phosphor/30 font-share text-xs tracking-wide px-3 py-2 focus:outline-none focus:border-phosphor/50 transition-colors";
+
+const labelClass =
+  "block text-phosphor/50 font-share text-xs tracking-widest uppercase mb-1";
+
 export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
   const [formData, setFormData] = useState<{
     url: string;
@@ -20,24 +26,17 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
 
   const [currentTagInput, setCurrentTagInput] = useState("");
   const [scraping, setScraping] = useState(false);
-
   const router = useRouter();
 
   function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && currentTagInput.trim()) {
       e.preventDefault();
-
       const newTags = currentTagInput
         .split(",")
         .map((tag) => tag.trim())
         .filter(Boolean)
-        .filter((tag) => !formData.tags.includes(tag)); // only keep tags that don't already exist
-
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, ...newTags],
-      }));
-
+        .filter((tag) => !formData.tags.includes(tag));
+      setFormData((prev) => ({ ...prev, tags: [...prev.tags, ...newTags] }));
       setCurrentTagInput("");
     }
   }
@@ -81,6 +80,11 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
 
   async function scrapeUrl(url: string) {
     if (!url) return;
+    try {
+      new URL(url);
+    } catch {
+      return;
+    }
     setScraping(true);
     try {
       const response = await fetch("/api/scrape", {
@@ -105,100 +109,83 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
   }
 
   return (
-    <div className="bg-[#161616] border border-zinc-800 rounded-2xl p-6 space-y-4">
-      <h2 className="text-white font-black font-mono text-sm tracking-widest uppercase">
-        + Add Bookmark
-      </h2>
-
-      <form onSubmit={addBookmark} className="space-y-3">
-        <div className="space-y-1">
-          <label className="text-zinc-400 text-xs tracking-widest uppercase font-mono">
-            URL
-          </label>
-          <div className="relative">
-            <input
-              placeholder="https://..."
-              onChange={(e) =>
-                setFormData({ ...formData, url: e.target.value })
-              }
-              value={formData.url}
-              onBlur={(e) => scrapeUrl(e.target.value)}
-              className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors"
-            />
-            {scraping && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-mono animate-pulse">
-                scraping...
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <label className="text-zinc-400 text-xs tracking-widest uppercase font-mono">
-            Title
-          </label>
+    <form onSubmit={addBookmark} className="space-y-4">
+      <div>
+        <label className={labelClass}>URL.INPUT</label>
+        <div className="relative">
           <input
-            placeholder="Enter title"
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            value={formData.title}
-            className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors"
+            placeholder="https://..."
+            onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+            value={formData.url}
+            onBlur={(e) => scrapeUrl(e.target.value)}
+            className={inputClass}
           />
+          {scraping && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-phosphor/50 font-share text-xs animate-pulse">
+              SCANNING...
+            </span>
+          )}
         </div>
+      </div>
 
-        <div className="space-y-1">
-          <label className="text-zinc-400 text-xs tracking-widest uppercase font-mono">
-            Description
-          </label>
-          <textarea
-            placeholder="Enter description"
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            value={formData.description}
-            rows={3}
-            className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors resize-none"
-          />
-        </div>
-        {/*tags*/}
-        <div className="space-y-1">
-          {formData.tags.length > 0 &&
-            formData.tags.map((tag, index) => (
+      <div>
+        <label className={labelClass}>PAGE.TITLE</label>
+        <input
+          placeholder="Enter title"
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          value={formData.title}
+          className={inputClass}
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>PAGE.DESC</label>
+        <textarea
+          placeholder="Enter description"
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+          value={formData.description}
+          rows={3}
+          className={`${inputClass} resize-none`}
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>META.TAGS</label>
+        {formData.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {formData.tags.map((tag, index) => (
               <span
                 key={index}
-                className="group relative inline-flex items-center bg-zinc-800 text-white text-xs font-bold py-1 px-3 rounded-full mx-1 mb-1"
+                className="group relative inline-flex items-center border border-phosphor/25 text-phosphor/60 font-share text-xs px-2 py-0.5"
               >
                 {tag}
                 <button
                   onClick={() => handleDeleteTag(index)}
-                  className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-zinc-600 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-[9px]"
+                  className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-signal text-terminal flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-[9px]"
                 >
                   ×
                 </button>
               </span>
             ))}
-        </div>
-        <div className="space-y-1">
-          <label className="text-zinc-400 text-xs tracking-widest uppercase font-mono">
-            Tags
-          </label>
-          <input
-            placeholder="Enter tags (comma separated)"
-            onChange={(e) => setCurrentTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            value={currentTagInput}
-            className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors resize-none"
-          />
-        </div>
+          </div>
+        )}
+        <input
+          placeholder="TYPE TAG + ENTER"
+          onChange={(e) => setCurrentTagInput(e.target.value)}
+          onKeyDown={handleTagKeyDown}
+          value={currentTagInput}
+          className={inputClass}
+        />
+      </div>
 
-        <button
-          type="submit"
-          className="w-full bg-[#ff4d00] hover:bg-[#e04400] text-white font-bold py-3 rounded-lg text-sm tracking-widest uppercase transition-colors font-mono"
-        >
-          Save Bookmark
-        </button>
-      </form>
-    </div>
+      <button
+        type="submit"
+        className="w-full bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase py-3 hover:bg-phosphor/90 transition-colors"
+      >
+        SAVE TO DATABASE →
+      </button>
+    </form>
   );
 }

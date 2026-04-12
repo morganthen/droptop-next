@@ -3,7 +3,7 @@
 import { Bookmark } from "@/lib/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type Props = {
   bookmark: Bookmark;
@@ -11,29 +11,67 @@ type Props = {
   onAdd: () => void;
 };
 
-const PencilIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="12"
-    height="12"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="text-white"
-  >
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-  </svg>
-);
-
 const editInputClass =
-  "w-full bg-[#0e0e0e] border border-zinc-700 text-white placeholder-zinc-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors";
+  "w-full bg-transparent border border-phosphor/25 text-phosphor placeholder-phosphor/30 font-share text-xs tracking-wide px-3 py-2 focus:outline-none focus:border-phosphor/50 transition-colors";
+
+const editLabelClass =
+  "block text-phosphor/30 font-share text-xs tracking-widest uppercase mb-1";
+
+const NoSignal = ({
+  onEdit,
+  isEditing,
+}: {
+  onEdit: () => void;
+  isEditing: boolean;
+}) => (
+  <div className="relative h-40 flex flex-col items-center justify-center border-b border-phosphor/5 bg-terminal">
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="opacity-10"
+    >
+      <rect
+        x="2"
+        y="3"
+        width="20"
+        height="14"
+        rx="1"
+        stroke="#c8ff00"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M8 21h8M12 17v4"
+        stroke="#c8ff00"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M7 8l2 2-2 2M12 7v2M17 8l-2 2 2 2"
+        stroke="#c8ff00"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+    <span className="mt-2 font-share text-xs tracking-widest text-phosphor\/25 uppercase">
+      NO SIGNAL
+    </span>
+    {!isEditing && (
+      <button
+        onClick={onEdit}
+        className="absolute top-2 right-2 bg-phosphor text-terminal font-share text-xs px-2 py-0.5 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all"
+      >
+        EDIT
+      </button>
+    )}
+  </div>
+);
 
 export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
   const [isEditing, setIsEditing] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const [editData, setEditData] = useState({
     title: bookmark.title || "",
     description: bookmark.description || "",
@@ -42,6 +80,9 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
   });
   const [currentTagInput, setCurrentTagInput] = useState("");
   const router = useRouter();
+
+  const scanDelay = useRef(`-${Math.random() * 4}s`);
+  const scanDuration = useRef(`${3 + Math.random() * 3}s`);
 
   function handleDeleteEditTag(index: number) {
     setEditData((prev) => ({
@@ -87,7 +128,6 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
   }
 
   function handleCancel() {
-    // Reset editData back to original bookmark values on cancel
     setEditData({
       title: bookmark.title || "",
       description: bookmark.description || "",
@@ -98,61 +138,77 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
     setIsEditing(false);
   }
 
+  const hasValidImage =
+    bookmark.imageUrl && bookmark.imageUrl.startsWith("http") && !imgError;
+
   return (
     <div
-      className={`group bg-[#161616] border rounded-xl overflow-hidden transition-all duration-200 ${
+      className={`group bg-screen overflow-hidden transition-all duration-200 ${
         isEditing
-          ? "border-[#ff4d00]/50"
-          : "border-zinc-800 hover:border-zinc-600"
+          ? "border border-phosphor/50"
+          : "border border-phosphor/10 hover:border-phosphor/30"
       }`}
     >
       {/* Image area */}
-      {bookmark.imageUrl ? (
-        <div className="relative overflow-hidden h-40">
+      {hasValidImage ? (
+        <div className="relative overflow-hidden h-32">
           <Image
-            src={bookmark.imageUrl}
+            src={bookmark.imageUrl!}
             alt={bookmark.title ?? ""}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={() => setImgError(true)}
+            style={{
+              filter: "saturate(0.8) brightness(0.95) contrast(1.1)",
+              opacity: 0.8,
+            }}
           />
-          <div className="absolute inset-0 bg-linear-to-t from-[#161616] to-transparent opacity-60" />
+          {/* Gradient fade */}
+          <div className="absolute inset-0 bg-linear-to-t from-screen to-transparent" />
+          {/* Static scanlines */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px)",
+            }}
+          />
+          {/* Moving scanline sweep */}
+          <div
+            className="scanline-sweep absolute left-0 right-0 h-8 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%)",
+              animationDelay: scanDelay.current,
+              animationDuration: scanDuration.current,
+            }}
+          />
           {!isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
+              className="absolute top-2 right-2 bg-phosphor text-terminal font-share text-xs px-2 py-0.5 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all"
             >
-              <PencilIcon />
+              EDIT
             </button>
           )}
         </div>
       ) : (
-        <div className="relative h-10 bg-zinc-900">
-          {!isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 backdrop-blur-sm"
-            >
-              <PencilIcon />
-            </button>
-          )}
-        </div>
+        <NoSignal onEdit={() => setIsEditing(true)} isEditing={isEditing} />
       )}
 
-      <div className="p-4 space-y-3">
+      <div className="p-3 space-y-3">
         {isEditing ? (
           <>
-            {/* Edit mode label */}
-            <p className="text-[#ff4d00] text-xs font-mono tracking-widest uppercase mb-1">
-              Editing
+            <p
+              className="text-phosphor/60
+             font-share text-xs tracking-widest uppercase"
+            >
+              &gt; EDIT MODE ACTIVE_
             </p>
 
-            {/* Title input */}
-            <div className="space-y-1">
-              <label className="text-zinc-500 text-xs font-mono tracking-widest uppercase">
-                Title
-              </label>
+            <div>
+              <label className={editLabelClass}>TITLE</label>
               <input
-                type="text"
                 value={editData.title}
                 onChange={(e) =>
                   setEditData({ ...editData, title: e.target.value })
@@ -162,11 +218,8 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
               />
             </div>
 
-            {/* Description input */}
-            <div className="space-y-1">
-              <label className="text-zinc-500 text-xs font-mono tracking-widest uppercase">
-                Description
-              </label>
+            <div>
+              <label className={editLabelClass}>DESC</label>
               <textarea
                 value={editData.description}
                 onChange={(e) =>
@@ -178,22 +231,19 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
               />
             </div>
 
-            {/* Tags */}
-            <div className="space-y-2">
-              <label className="text-zinc-500 text-xs font-mono tracking-widest uppercase">
-                Tags
-              </label>
+            <div>
+              <label className={editLabelClass}>TAGS</label>
               {editData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 mb-2">
                   {editData.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="group/tag relative inline-flex items-center bg-zinc-800 text-white text-xs font-bold py-1 px-3 rounded-full"
+                      className="group/tag relative inline-flex items-center border border-phosphor/25 text-phosphor/50 font-share text-xs px-2 py-0.5"
                     >
                       {tag}
                       <button
                         onClick={() => handleDeleteEditTag(index)}
-                        className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-zinc-600 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover/tag:opacity-100 transition-all text-[9px]"
+                        className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-signal text-terminal flex items-center justify-center opacity-0 group-hover/tag:opacity-100 transition-all text-[9px]"
                       >
                         ×
                       </button>
@@ -202,7 +252,7 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
                 </div>
               )}
               <input
-                placeholder="Type a tag and hit Enter"
+                placeholder="TYPE TAG + ENTER"
                 onKeyDown={handleTagKeyDown}
                 onChange={(e) => setCurrentTagInput(e.target.value)}
                 value={currentTagInput}
@@ -210,31 +260,29 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
               />
             </div>
 
-            {/* Action buttons */}
             <div className="flex gap-2 pt-1">
               <button
                 onClick={handleSaveEdits}
-                className="flex-1 bg-[#ff4d00] hover:bg-[#e04400] text-white font-bold py-2 rounded-lg text-xs tracking-widest uppercase transition-colors font-mono"
+                className="flex-1 bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase py-2 hover:bg-phosphor/90 transition-colors"
               >
-                Save
+                SAVE
               </button>
               <button
                 onClick={handleCancel}
-                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold py-2 rounded-lg text-xs tracking-widest uppercase transition-colors font-mono"
+                className="flex-1 border border-phosphor/25 text-phosphor/50 font-share text-xs tracking-widest uppercase py-2 hover:border-phosphor/50 transition-colors bg-transparent"
               >
-                Cancel
+                CANCEL
               </button>
             </div>
           </>
         ) : (
           <>
-            {/* Display mode */}
-            <h2 className="text-white text-sm font-bold leading-snug line-clamp-2">
+            <h2 className="text-phosphor font-share text-sm leading-snug line-clamp-2 tracking-wide">
               {bookmark.title || bookmark.url}
             </h2>
 
             {bookmark.description && (
-              <p className="text-zinc-500 text-xs leading-relaxed line-clamp-3">
+              <p className="text-phosphor/50 font-share text-xs leading-relaxed line-clamp-3">
                 {bookmark.description}
               </p>
             )}
@@ -244,7 +292,7 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
                 {bookmark.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="bg-zinc-800 text-zinc-400 text-xs px-2 py-0.5 rounded-full font-mono"
+                    className="border border-phosphor/25 text-phosphor/50 font-share text-xs px-2 py-0.5"
                   >
                     {tag}
                   </span>
@@ -252,20 +300,20 @@ export default function BookmarkCard({ bookmark, onDelete, onAdd }: Props) {
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+            <div className="flex items-center justify-between pt-2 border-t border-phosphor/10">
               <a
                 href={bookmark.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#ff4d00] text-xs font-mono tracking-widest uppercase hover:text-[#ff6a2a] transition-colors"
+                className="text-signal font-share text-xs tracking-widest uppercase hover:text-signal/70 transition-colors"
               >
-                Visit →
+                VISIT →
               </a>
               <button
                 onClick={() => onDelete(bookmark.id)}
-                className="text-zinc-600 hover:text-red-500 text-xs font-mono tracking-widest uppercase transition-colors"
+                className="text-phosphor/25 hover:text-signal font-share text-xs tracking-widest uppercase transition-colors"
               >
-                Delete
+                DELETE
               </button>
             </div>
           </>
