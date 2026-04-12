@@ -4,16 +4,50 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    url: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    tags: string[];
+  }>({
     url: "",
     title: "",
     description: "",
     imageUrl: "",
     tags: [],
   });
+
+  const [currentTagInput, setCurrentTagInput] = useState("");
   const [scraping, setScraping] = useState(false);
 
   const router = useRouter();
+
+  function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && currentTagInput.trim()) {
+      e.preventDefault();
+
+      const newTags = currentTagInput
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+        .filter((tag) => !formData.tags.includes(tag)); // only keep tags that don't already exist
+
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, ...newTags],
+      }));
+
+      setCurrentTagInput("");
+    }
+  }
+
+  function handleDeleteTag(index: number) {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index),
+    }));
+  }
 
   async function addBookmark(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -125,6 +159,36 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
             value={formData.description}
             rows={3}
             className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors resize-none"
+          />
+        </div>
+        {/*tags*/}
+        <div className="space-y-1">
+          {formData.tags.length > 0 &&
+            formData.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="group relative inline-flex items-center bg-zinc-800 text-white text-xs font-bold py-1 px-3 rounded-full mx-1 mb-1"
+              >
+                {tag}
+                <button
+                  onClick={() => handleDeleteTag(index)}
+                  className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-zinc-600 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-[9px]"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+        </div>
+        <div className="space-y-1">
+          <label className="text-zinc-400 text-xs tracking-widest uppercase font-mono">
+            Tags
+          </label>
+          <input
+            placeholder="Enter tags (comma separated)"
+            onChange={(e) => setCurrentTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            value={currentTagInput}
+            className="w-full bg-[#0e0e0e] border border-zinc-800 text-white placeholder-zinc-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-[#ff4d00] transition-colors resize-none"
           />
         </div>
 
