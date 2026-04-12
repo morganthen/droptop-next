@@ -36,7 +36,7 @@ export default function Header({
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-terminal border-b-2 border-phosphor overflow-hidden">
+    <header className="sticky top-0 z-50 bg-terminal border-b border-phosphor/20 overflow-hidden">
       {/* Scanlines */}
       <div
         className="pointer-events-none absolute inset-0"
