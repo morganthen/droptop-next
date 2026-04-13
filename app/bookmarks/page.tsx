@@ -1,6 +1,7 @@
 "use client";
 
 import BookmarkCard from "@/components/BookmarkCard";
+import BookmarkSkeleton from "@/components/BookmarkSkeleton";
 import Header from "@/components/Header";
 import { Bookmark } from "@/lib/types";
 import { useRouter } from "next/navigation";
@@ -10,11 +11,9 @@ export default function Bookmarks() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  {
-    /** Debounce search term - increase responsiveness because searching client side*/
-  }
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -23,6 +22,7 @@ export default function Bookmarks() {
   }, [searchTerm]);
 
   const fetchBookmarks = useCallback(async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -37,6 +37,8 @@ export default function Bookmarks() {
       setBookmarks(data);
     } catch (error) {
       console.error("Error fetching bookmarks:", error);
+    } finally {
+      setLoading(false);
     }
   }, [router]);
 
@@ -86,6 +88,9 @@ export default function Bookmarks() {
       })
     : bookmarks;
 
+  const grid =
+    "columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3";
+
   return (
     <div className="min-h-screen bg-terminal relative">
       {/* Static scanlines */}
@@ -118,7 +123,15 @@ export default function Bookmarks() {
         />
 
         <main className="max-w-7xl mx-auto px-6 py-8">
-          {bookmarks.length === 0 ? (
+          {loading ? (
+            <div className={grid}>
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="break-inside-avoid">
+                  <BookmarkSkeleton />
+                </div>
+              ))}
+            </div>
+          ) : bookmarks.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center space-y-3">
               <p className="text-phosphor/25 font-share text-sm tracking-widest uppercase">
                 &gt; NO RECORDS FOUND
@@ -140,7 +153,7 @@ export default function Bookmarks() {
               </p>
             </div>
           ) : (
-            <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 space-y-3">
+            <div className={grid}>
               {filteredBookmarks.map((bookmark) => (
                 <div key={bookmark.id} className="break-inside-avoid">
                   <BookmarkCard
