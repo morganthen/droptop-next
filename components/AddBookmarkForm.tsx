@@ -87,13 +87,13 @@ export default function AddBookmarkForm({
         tags: [],
       });
       setError("");
-      onAdd();
     } catch (error) {
       console.error("Error adding bookmark:", error);
     }
   }
 
   async function scrapeUrl(url: string) {
+    console.log("scrapeUrl called with:", url);
     if (!url) return;
     try {
       new URL(url);
@@ -107,8 +107,13 @@ export default function AddBookmarkForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
       });
+      if (response.status === 422) {
+        setError("! URL IS NOT REACHABLE");
+        return; // finally will handle setScraping(false)
+      }
       if (!response.ok) return;
       const data = await response.json();
+      setError("");
       setFormData((prev) => ({
         ...prev,
         title: data.result.ogTitle || "",
@@ -201,7 +206,8 @@ export default function AddBookmarkForm({
       )}
       <button
         type="submit"
-        className="w-full bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase py-3 hover:bg-phosphor/90 transition-colors"
+        disabled={scraping}
+        className="w-full bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase py-3 hover:bg-phosphor/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         SAVE TO DATABASE →
       </button>
