@@ -1,5 +1,6 @@
 "use client";
 
+import { Bookmark } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -9,7 +10,13 @@ const inputClass =
 const labelClass =
   "block text-phosphor/50 font-share text-xs tracking-widest uppercase mb-1";
 
-export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
+export default function AddBookmarkForm({
+  onAdd,
+  bookmarks,
+}: {
+  onAdd: () => void;
+  bookmarks: Bookmark[];
+}) {
   const [formData, setFormData] = useState<{
     url: string;
     title: string;
@@ -26,6 +33,7 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
 
   const [currentTagInput, setCurrentTagInput] = useState("");
   const [scraping, setScraping] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -56,6 +64,11 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
         router.push("/login");
         return;
       }
+      const isDuplicate = bookmarks.some((b) => b.url === formData.url);
+      if (isDuplicate) {
+        setError("! URL ALREADY EXISTS IN DATABASE");
+        return;
+      }
       const response = await fetch("/api/bookmarks", {
         method: "POST",
         headers: {
@@ -73,6 +86,8 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
         imageUrl: "",
         tags: [],
       });
+      setError("");
+      onAdd();
     } catch (error) {
       console.error("Error adding bookmark:", error);
     }
@@ -179,7 +194,11 @@ export default function AddBookmarkForm({ onAdd }: { onAdd: () => void }) {
           className={inputClass}
         />
       </div>
-
+      {error && (
+        <p className="text-signal font-share text-xs tracking-widest uppercase">
+          {error}
+        </p>
+      )}
       <button
         type="submit"
         className="w-full bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase py-3 hover:bg-phosphor/90 transition-colors"

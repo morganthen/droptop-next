@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import AddBookmarkForm from "./AddBookmarkForm";
 import Logo from "./Logo";
+import { Bookmark } from "@/lib/types";
 
 type HeaderProps = {
   onLogOut: () => void;
@@ -18,6 +19,7 @@ type HeaderProps = {
   searchTerm?: string;
   onSetSearchTerm?: (term: string) => void;
   filteredCount?: number;
+  bookmarks?: Bookmark[];
 };
 
 export default function Header({
@@ -27,6 +29,7 @@ export default function Header({
   searchTerm,
   onSetSearchTerm,
   filteredCount,
+  bookmarks,
 }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
@@ -83,7 +86,7 @@ export default function Header({
                   &gt; NEW BOOKMARK_
                 </DialogTitle>
               </DialogHeader>
-              <AddBookmarkForm onAdd={handleAdd} />
+              <AddBookmarkForm onAdd={handleAdd} bookmarks={bookmarks} />
             </DialogContent>
           </Dialog>
 

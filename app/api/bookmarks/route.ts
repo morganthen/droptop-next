@@ -18,7 +18,19 @@ export async function POST(req: Request) {
   const userId = getUserId(req);
   if (!userId) return new Response("Unauthorized", { status: 401 });
   try {
-    const { title, description, imageUrl, url, tags, user } = await req.json();
+    const { title, description, imageUrl, url, tags } = await req.json();
+
+    const existingBookmark = await prisma.bookmark.findFirst({
+      where: { url, userId },
+    });
+
+    if (existingBookmark) {
+      return Response.json(
+        { message: "Bookmark already exists" },
+        { status: 409 },
+      );
+    }
+
     const bookmark = await prisma.bookmark.create({
       data: {
         title,
@@ -26,7 +38,6 @@ export async function POST(req: Request) {
         imageUrl,
         url,
         tags,
-        user,
         userId,
       },
     });

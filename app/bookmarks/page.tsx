@@ -120,6 +120,7 @@ export default function Bookmarks() {
           filteredCount={filteredBookmarks.length}
           searchTerm={searchTerm}
           onSetSearchTerm={setSearchTerm}
+          bookmarks={bookmarks}
         />
 
         <main className="max-w-7xl mx-auto px-6 py-8">
