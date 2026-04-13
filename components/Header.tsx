@@ -66,14 +66,15 @@ export default function Header({
           placeholder="SEARCH..."
           value={searchTerm}
           onChange={(e) => onSetSearchTerm?.(e.target.value)}
-          className="bg-terminal text-phosphor placeholder-phosphor/30 font-share text-xs tracking-widest border border-phosphor/25 px-3 py-1.5 focus:outline-none focus:border-phosphor/70 transition-colors w-48"
+          className="bg-terminal text-phosphor placeholder-phosphor/30 font-share text-xs tracking-widest border border-phosphor/25 px-3 py-1.5 focus:outline-none focus:border-phosphor/70 transition-colors sm:w-36 w-48"
         />
 
         <div className="flex items-center gap-4">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <button className="bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase px-4 py-2 hover:bg-phosphor/90 transition-colors">
-                + ADD
+              <button className="bg-phosphor text-terminal font-share font-bold text-xs tracking-widest uppercase px-3 py-2 sm:px-4 hover:bg-phosphor/90 transition-colors">
+                <span className="sm:hidden">+</span>
+                <span className="hidden sm:inline">+ ADD</span>
               </button>
             </DialogTrigger>
             <DialogContent className="bg-screen border border-phosphor/30 text-phosphor max-w-md">
