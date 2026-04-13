@@ -86,7 +86,7 @@ export default function Header({
                   &gt; NEW BOOKMARK_
                 </DialogTitle>
               </DialogHeader>
-              <AddBookmarkForm onAdd={handleAdd} bookmarks={bookmarks} />
+              <AddBookmarkForm onAdd={handleAdd} bookmarks={bookmarks ?? []} />
             </DialogContent>
           </Dialog>
 
